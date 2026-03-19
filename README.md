@@ -27,7 +27,3 @@ Solutions and walkthroughs from various CTF competitions.
 ### Algorithms
 
 - [Sorting & Searching](posts/algorithms/sorting-and-searching.md) -- classic competitive programming problems with C++ solutions
-
-## About
-
-Written by [Med Ali Ouachani (IronByte)](pages/about.md).
