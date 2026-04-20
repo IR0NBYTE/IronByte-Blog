@@ -1,9 +1,7 @@
-Hey there, it's been like 2 years since I wrote a CTF writeup. This writeup is about an Android CTF challenge I actually
-built myself for an event that accured in tunisia called cybersphere. The challenge is sponsored by yinkoshield an evidence mobile security SDK which a completetly new category from Rasp, Promon, Guarddex, etc.. and the usual mobile SDKs and what you are going to see in this writeup is just a crackme style. Grab something to drink, and enjoy reading.
+Hey there, it's been like 2 years since I wrote a CTF writeup. This writeup is about an Android CTF challenge I actually built myself for an event that took place in Tunisia called CyberSphere. The challenge is sponsored by [YinkoShield](https://www.linkedin.com/showcase/yinkoshield/posts/?feedView=all), an evidence-based mobile security SDK which is a completely new category compared to RASP, Promon, Guardsquare, etc., and the usual mobile SDKs. What you're going to see in this writeup is just a crackme-style challenge. Grab something to drink, and enjoy reading.
 
 > Quick note before we start: if you're new to Android reverse
-> engineering and a lot of what's coming up (Dalvik, JNI, ART,
-> manifest, APK structure) sounds alien, check out my YouTube
+> engineering and a lot of what's coming up and sounds alien, check out my YouTube
 > playlist on Android internals first. It goes through everything
 > from fundamentals to native code step by step. Link:
 > [Android Reverse Engineering playlist](https://www.youtube.com/watch?v=6XHKvx-TKqk&list=PL-A03qCBcinSbXGnn7-_HPswjX1ew-AUx).
@@ -12,11 +10,11 @@ built myself for an event that accured in tunisia called cybersphere. The challe
 # I - First Look
 
 First things first, let's just install the the apk with **adb** and
-run it. You can download by clicking here [here](https://github.com/IR0NBYTE/Reverse-Engineering-Practice/blob/main/the%20verifier.apk)
+run it. You can download by clicking here [here](https://github.com/IR0NBYTE/Reverse-Engineering-Practice/blob/main/the%20verifier.apk).
 
 **Result :**
 ```Console
-ironbyte@MacBook-Pro-2:~$ adb install -r YinkoShield-CTF-v1.0.apk
+ironbyte@MacBook-Pro-2:~$ adb install -r 'the verifier.apk'
 Performing Streamed Install
 Success
 ironbyte@MacBook-Pro-2:~$ adb shell am start -n com.ir0nbyte.yinkoshield/.MainActivity
@@ -980,7 +978,7 @@ Plus classic `<|im_start|>system` impersonation tags for
 ChatML-style models. These don't work on a human player, you'll
 read them and laugh xD, but they can throw off an LLM-assisted player
 who pastes `strings` output or decompiled resources into a chat
-window. Not a defense, just noise. I tested that with Claude, it stopped some certain sessions. Still deving a bunch of mitigations of Anti-LLM.
+window. Not a defense, just noise. I tested that with Claude, it stopped some certain sessions. Still having a bunch of mitigations of Anti-LLM, I just used a simnple one in this since it's a CTF.
 
 # XII - The VM
 
