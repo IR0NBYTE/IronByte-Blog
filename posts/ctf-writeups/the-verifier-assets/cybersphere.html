@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breaking the Trust Chain: How Africa's Payment Devices Are Failing</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+  :root { --r-background-color:#ffffff; --r-main-font:'Space Grotesk',sans-serif; --r-heading-font:'Space Grotesk',sans-serif; --r-code-font:'JetBrains Mono',monospace; --r-main-color:#2a2a2a; --r-heading-color:#111; --red:#d32f2f; --green:#2e7d32; --cyan:#2EBFA0; --orange:#e65100; --purple:#7b1fa2; --yinko:#2EBFA0; }
+  .reveal{font-size:28px} .reveal h1{font-size:2.2em;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:#111} .reveal h2{font-size:1.45em;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--cyan)} .reveal h3{font-size:1.05em;font-weight:500;color:#222} .reveal p,.reveal li{font-size:0.82em;line-height:1.7;font-weight:400;color:#444}
+  .badge{display:inline-block;padding:4px 16px;border-radius:4px;font-size:0.55em;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px} .badge-red{background:var(--red);color:#fff} .badge-orange{background:var(--orange);color:#000} .badge-cyan{background:var(--cyan);color:#000}
+  .box-red{background:#fef2f2;border-left:4px solid var(--red);padding:16px 20px;margin:10px 0;border-radius:0 8px 8px 0;text-align:left} .box-green{background:#f0fdf4;border-left:4px solid var(--green);padding:16px 20px;margin:10px 0;border-radius:0 8px 8px 0;text-align:left} .box-blue{background:#f0fdfa;border-left:4px solid var(--cyan);padding:16px 20px;margin:10px 0;border-radius:0 8px 8px 0;text-align:left}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0} .stat{background:#f8fafb;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-align:center} .stat .num{font-size:2em;font-weight:700} .stat .lbl{font-size:0.52em;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:5px;font-weight:400}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  .kill-chain{display:flex;flex-direction:column;gap:5px;margin:10px 0} .kill-step{display:flex;align-items:center;gap:10px;background:#f8fafb;border-radius:8px;padding:10px 14px;border-left:3px solid var(--red);font-size:0.66em;font-weight:400;color:#333} .kill-step .sn{background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.8em;flex-shrink:0}
+  .img-frame{background:#f8fafb;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin:10px auto} .img-frame img{width:100%;display:block} .img-frame .caption{padding:8px 12px;font-size:0.48em;color:#888;text-align:center;font-weight:400}
+  .speaker-card{background:#f8fafb;border:1px solid #e2e8f0;border-radius:12px;padding:22px 28px;text-align:left;max-width:450px;margin:0 auto} .speaker-card .name{font-size:1.05em;font-weight:600;color:#111} .speaker-card .role{font-size:0.68em;color:var(--cyan);margin-top:4px;font-weight:500} .speaker-card .bio{font-size:0.62em;color:#555;margin-top:10px;line-height:1.7;font-weight:400}
+  .foot{margin-top:25px;text-align:center;font-size:0.4em;color:#bbb;letter-spacing:2px;text-transform:uppercase}
+  @keyframes glitch{0%,100%{text-shadow:1px 0 var(--red),-1px 0 var(--cyan)}25%{text-shadow:-1px 0 var(--red),1px 0 var(--cyan)}50%{text-shadow:1px 1px var(--red),-1px -1px var(--cyan)}75%{text-shadow:-1px 1px var(--red),1px -1px var(--cyan)}} .glitch{animation:glitch 3s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}} .pulse{animation:pulse 2s infinite}
+  @keyframes pulseGlow{0%,100%{box-shadow:0 0 5px var(--red)}50%{box-shadow:0 0 20px var(--red),0 0 40px #ff174466}} .pulse-glow{animation:pulseGlow 1.5s ease-in-out infinite}
+  @keyframes scanBar{0%{left:-30%}100%{left:100%}} .scan-bar{position:absolute;top:0;width:30%;height:100%;background:linear-gradient(90deg,transparent,#ff174433,transparent);animation:scanBar 2s linear infinite;overflow:hidden;border-radius:inherit}
+  @keyframes fadeSlideUp{0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:translateY(0)}} .anim-in{animation:fadeSlideUp 0.6s ease forwards;opacity:0} .anim-in.d1{animation-delay:0.2s}.anim-in.d2{animation-delay:0.5s}.anim-in.d3{animation-delay:0.8s}.anim-in.d4{animation-delay:1.1s}.anim-in.d5{animation-delay:1.4s}.anim-in.d6{animation-delay:1.7s}.anim-in.d7{animation-delay:2.0s}.anim-in.d8{animation-delay:2.3s}
+  @keyframes forkDraw{0%{height:0;opacity:0}100%{height:35px;opacity:1}} .fork-line{width:2px;background:#555;animation:forkDraw 0.5s ease forwards;height:0}
+  @keyframes flowDots{0%{left:0;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% - 8px);opacity:0}} .flow-dot{position:absolute;width:6px;height:6px;border-radius:50%;top:-2px;animation:flowDots 2s linear infinite}
+  .snapshot-bar{display:flex;align-items:center;gap:0;margin:6px 0;height:36px} .snapshot-bar .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0} .snapshot-bar .gap{flex:1;height:26px;border:1px dashed #ff174444;background:#ff174411;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.48em;color:var(--red)} .snapshot-bar .timeline{flex:1;height:2px;background:#333}
+  @keyframes flashDrop{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}} .flash-x{animation:flashDrop 0.8s ease-in-out infinite}
+  .reveal .slide-number{font-size:12px;color:#bbb}
+  /* Zygote boot diagram */
+  .boot-chain{display:flex;align-items:center;gap:0;justify-content:center;margin:15px 0;flex-wrap:wrap}
+  .boot-node{background:#f8fafb;border:2px solid #e2e8f0;border-radius:8px;padding:10px 16px;font-size:0.65em;text-align:center;min-width:100px;font-weight:400;color:#333}
+  .boot-node.active{border-color:var(--cyan);color:var(--cyan)}
+  .boot-node.danger{border-color:var(--red);color:var(--red);background:#2d0000}
+  .boot-arrow{font-size:1.2em;color:#555;padding:0 6px}
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ===== SLIDE 1: TITLE ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">SECURITY RESEARCH</div>
+  <h1 class="glitch" style="font-size:1.5em;line-height:1.2;">BREAKING THE TRUST CHAIN</h1>
+  <p style="color:#555;font-size:0.75em;margin-top:18px;">How Africa's Payment Devices Are Failing</p>
+  <div class="foot">2026</div>
+</section>
+
+<!-- ===== SLIDE 2: AFRICA NETWORK ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE NETWORK PROBLEM</h2>
+  <p style="color:#888;font-size:0.6em;">The problem is not speed. It is reliability. <span style="color:#aaa;">(OpenSignal, State of Mobile Network Experience in Africa, 2024)</span></p>
+  <div style="max-width:750px;margin:18px auto;">
+    <div class="box-blue" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">Reliability, not speed.</p>
+      <p style="margin:0;color:#555;">Speed is a red herring. A 200ms connection that drops mid-transaction is infinitely worse than a 2-second connection that completes. Africa has coverage. What it does not have is consistency. Connections drop without warning, mid-payment, mid-confirmation, mid-retry. The payment leaves the device but the confirmation never arrives. That is not a performance problem. That is an evidence problem.</p>
+    </div>
+    <div class="fragment box-red" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">Load shedding creates ghost transactions.</p>
+      <p style="margin:0;color:#555;">South Africa's load-shedding schedule regularly kills cellular base stations. When a base station goes down mid-transaction, the payment processes on the backend but the device never receives confirmation. The customer retries. The backend sees two requests and has no way to know if it is one transaction or two. This is well-documented, systematic, and happens every day.</p>
+    </div>
+    <div class="fragment box-blue" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">The devices themselves are unreliable.</p>
+      <p style="margin:0;color:#555;">Low-end devices with unstable memory management and unreliable network hardware contribute to silent failures that no attestation API designed in a European or American lab will account for. The device drops a packet, corrupts a retry, or silently fails a TLS handshake, and nobody on the backend side knows it happened.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 2B: AFRICA SCALE ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE SCALE PROBLEM</h2>
+  <p style="color:#888;font-size:0.6em;">This is a consumer market. The phone replaced the bank.</p>
+  <div style="max-width:750px;margin:18px auto;">
+    <div class="box-blue" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">People do not have bank accounts. They have phones.</p>
+      <p style="margin:0;color:#555;">The success of mobile money (M-Pesa, MTN MoMo) is not accidental. The phone replaced the bank. Sometimes shared phones. That is the baseline. The smallest bank in this market has 5 million users. In Europe, a bank with 20,000 users can experiment. Here, there is no pilot. There is only production.</p>
+    </div>
+    <div class="fragment box-red" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">1% of incidents becomes a workforce problem that kills innovation.</p>
+      <p style="margin:0;color:#555;">5 million users, 1% encounter an anomaly: that is 50,000 support tickets. You cannot staff your way out of that. You cannot iterate. You stop shipping. This is the hidden cost of not having proper execution evidence at the device level. It is not a security problem. It is an operational problem that freezes your entire business.</p>
+    </div>
+    <div class="fragment box-blue" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">Few players, massive impact.</p>
+      <p style="margin:0;color:#555;">A handful of banks serve the continent. 1% of the targetable population in South Africa alone is millions of people per year. <span style="color:#aaa;">(SARB, GSMA)</span> The impact per breach is orders of magnitude larger than anywhere else. And the attackers know it. That is why they are moving here.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 2C: AFRICA FRAGMENTATION ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE FRAGMENTATION PROBLEM</h2>
+  <p style="color:#888;font-size:0.6em;">The real pain point that no lab environment will prepare you for.</p>
+  <div style="max-width:750px;margin:18px auto;">
+    <div class="box-blue" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">We support 13,000+ device configurations in production. The market is far worse.</p>
+      <p style="margin:0;color:#555;">That number is not a market statistic. It is our production coverage. The actual market fragmentation is significantly larger. Low-end devices dominate: $30 phones with 2GB RAM, unpatched kernels from 2021, broken TEEs, unreliable storage. People share these devices. 5 users on one phone is normal. Manufacturers stop pushing patches after 6 months because there is no revenue in supporting a cheap handset.</p>
+    </div>
+    <div class="fragment box-red" style="font-size:0.72em;">
+      <p style="margin:0 0 8px;color:#111;font-weight:600;">Check any major vendor's documentation.</p>
+      <p style="margin:0;color:#555;">They will list a minimum supported Android version. Typically a recent one. Go look at Duo Security or any major mobile security vendor. Everything below their compatibility floor is out of scope. <strong style="color:var(--red);">Now check what percentage of your fleet actually runs that version or higher.</strong> In most African deployments, the majority of devices fall below that line. They are not unsupported by accident. They are unsupported by design.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 3: MALWARE TSUNAMI - NUMBERS ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE MALWARE TSUNAMI</h2>
+  <div class="stats" style="margin-top:18px;">
+    <div class="stat"><div class="num" style="color:var(--red);">86%</div><div class="lbl">Surge in digital banking<br>fraud in South Africa (2024)</div></div>
+    <div class="stat"><div class="num" style="color:var(--orange);">R1.9B</div><div class="lbl">Losses from digital<br>banking crime (~$100M+)</div></div>
+    <div class="stat"><div class="num" style="color:var(--cyan);">120M</div><div class="lbl">Ethiopians moving from<br>USSD to Android payments</div></div>
+  </div>
+  <div class="box-red" style="margin-top:12px;font-size:0.7em;">
+    <p style="margin:0;"><strong>The pipeline:</strong> Malware groups perfected their tools in Vietnam, Thailand, Indonesia. Now they are moving to Africa. Same techniques, same toolkits. GoldDigger, GodFather, overlay attacks stealing millions every year. Nigerian authorities arrested a 792-person syndicate operating out of a building in Lagos, including 177 Chinese nationals and 500 SIM cards on one floor alone.</p>
+  </div>
+  <div class="fragment" style="margin-top:10px;">
+    <div class="img-frame" style="max-width:700px;">
+      <img src="https://banksandbankers.com/wp-content/uploads/2025/10/digital-banking-fraud-in-africa-infographic-1024x683.png" alt="Digital banking fraud in Africa infographic" style="max-height:220px;object-fit:contain;background:#fff;padding:8px;">
+      <div class="caption">SABRIC 2024 Annual Crime Report</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 4: GODFATHER - WHAT IT IS ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">MALWARE ANALYSIS</div>
+  <h2>GODFATHER</h2>
+  <p style="color:#888;font-size:0.6em;">Successor to the Anubis banking trojan. Targets 500+ banking and crypto apps worldwide.</p>
+  <div style="max-width:800px;margin:18px auto;">
+    <div class="img-frame">
+      <img src="https://www.bleepstatic.com/images/news/u/1220909/Diagrams/overview.png" alt="GodFather architecture overview" style="max-height:350px;object-fit:contain;background:#f0f0f0;padding:10px;width:100%;">
+      <div class="caption">GodFather architecture and attack flow. via BleepingComputer</div>
+    </div>
+  </div>
+  <div class="fragment box-red" style="max-width:800px;margin:10px auto;font-size:0.7em;">
+    <p style="margin:0;color:#555;">Full remote access platform. Overlay attacks, keylogging, screen recording, SMS interception, VNC remote desktop, USSD money transfers, call forwarding, and self-spreading via SMS. C2 address hidden inside a Telegram channel, encrypted with Blowfish.</p>
+  </div>
+</section>
+
+<!-- ===== SLIDE 4B: GODFATHER - OVERLAY ATTACK ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">GODFATHER</div>
+  <h2>THE OVERLAY ATTACK</h2>
+  <p style="color:#888;font-size:0.58em;">When the victim opens their bank, they see a perfect fake. They never know.</p>
+  <div class="two-col" style="margin-top:14px;">
+    <div>
+      <div class="kill-chain">
+        <div class="kill-step fragment" style="border-left-color:var(--orange);"><span class="sn" style="background:var(--orange);color:#000;">1</span><span>Victim installs a fake app from a phishing site or third-party store. It looks like a legitimate utility, VPN, or music player.</span></div>
+        <div class="kill-step fragment" style="border-left-color:var(--orange);"><span class="sn" style="background:var(--orange);color:#000;">2</span><span>The app requests Accessibility Service permissions. Most users tap "Allow" without reading. The malware now monitors everything on screen.</span></div>
+        <div class="kill-step fragment"><span class="sn">3</span><span>Victim opens their real banking app. GodFather detects the launch through Accessibility Service.</span></div>
+        <div class="kill-step fragment"><span class="sn">4</span><span>GodFather instantly displays a pixel-perfect HTML fake login screen on top of the real app. Same logo, same colors, same input fields.</span></div>
+        <div class="kill-step fragment"><span class="sn">5</span><span>Victim enters credentials into the fake screen. GodFather captures username, password, PIN. Sends to attacker's C2 server.</span></div>
+        <div class="kill-step fragment"><span class="sn">6</span><span>The fake overlay dismisses. The real app loads underneath. Victim never realizes they were phished.</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="img-frame fragment">
+        <img src="https://www.bleepstatic.com/images/news/u/1220909/Android%20malware/overlays.png" alt="GodFather overlay attack" style="max-height:420px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">GodFather overlays: pixel-perfect fake login screens<br>for targeted banking apps.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 4C: GODFATHER - ACCESSIBILITY ABUSE ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">GODFATHER</div>
+  <h2>ACCESSIBILITY SERVICE ABUSE</h2>
+  <p style="color:#888;font-size:0.58em;">The key to everything. One permission grants total control.</p>
+  <div class="two-col" style="margin-top:14px;">
+    <div>
+      <div class="box-red" style="font-size:0.68em;">
+        <p style="margin:0 0 8px;color:#111;font-weight:600;">What Accessibility Service gives the malware</p>
+        <ul style="margin:0;color:#555;line-height:1.8;">
+          <li>Observe every tap, swipe, and keystroke across all apps</li>
+          <li>Read the contents of any text field on screen</li>
+          <li>Press buttons and interact with UI elements</li>
+          <li>Detect which app is in the foreground</li>
+          <li>Capture and block push notifications</li>
+          <li>Auto-grant itself additional permissions</li>
+        </ul>
+      </div>
+      <div class="fragment box-red" style="font-size:0.68em;">
+        <p style="margin:0;color:#555;">GodFather also sends <strong style="color:#111;">fake push notifications</strong> that mimic real banking alerts. "Unusual activity detected on your account. Tap to verify." The victim taps, the banking app opens, the overlay appears, credentials stolen.</p>
+      </div>
+    </div>
+    <div>
+      <div class="img-frame">
+        <img src="https://securityonline.info/wp-content/uploads/2024/11/Phishing-site-impersonating-myGov-website-distributing-APK-file.png" alt="Phishing site distributing GodFather" style="max-height:350px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">Phishing site distributing GodFather malware<br>disguised as a government service app</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 5: GODFATHER V2 - VIRTUALIZATION ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">EVOLUTION</div>
+  <h2>GODFATHER V2: VIRTUALIZATION</h2>
+  <p style="color:#888;font-size:0.58em;">The attack you cannot see. The victim uses their REAL banking app. Inside a container the attacker controls.</p>
+  <div style="max-width:800px;margin:16px auto;">
+    <div class="img-frame">
+      <img src="https://i0.wp.com/securityaffairs.com/wp-content/uploads/2025/06/image-37.png?fit=1600%2C1088&amp;ssl=1" alt="GodFather virtualization technique" style="max-height:320px;object-fit:contain;background:#f0f0f0;padding:10px;width:100%;">
+      <div class="caption">GodFather v2: virtualization-based trojan architecture. The real banking app runs inside a VirtualApp sandbox.</div>
+    </div>
+  </div>
+  <div class="fragment box-red" style="max-width:800px;margin:10px auto;font-size:0.68em;">
+    <p style="margin:0;color:#555;">Clones your real banking app into a virtual sandbox. Victim uses <strong style="color:#111;">real, unmodified banking code</strong> inside a container the attacker controls. Hooks the HTTP library to intercept all traffic. Hooks the security API to report "all clear." <strong style="color:var(--red);">Impossible to detect visually.</strong></p>
+  </div>
+</section>
+
+<!-- ===== SLIDE 5B: GODFATHER - HOOK DETAILS ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">GODFATHER V2</div>
+  <h2>HOW THE HOOKS WORK</h2>
+  <p style="color:#888;font-size:0.58em;">Inside the sandbox, GodFather intercepts everything. The banking app cannot tell.</p>
+  <div class="two-col" style="margin-top:14px;">
+    <div>
+      <div class="img-frame">
+        <img src="https://muha2xmad.github.io/assets/images/MA/godfather/15.png" alt="GodFather overlay attack implementation" style="max-height:280px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">GodFather overlay attack implementation.<br>Fake login screen injected over the real banking app.</div>
+      </div>
+    </div>
+    <div>
+      <div class="img-frame">
+        <img src="https://muha2xmad.github.io/assets/images/MA/godfather/18.png" alt="GodFather C2 encrypted communication" style="max-height:280px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">GodFather encrypted C2 address retrieval via Telegram.<br>Blowfish encryption hides the command server.</div>
+      </div>
+    </div>
+  </div>
+  <div class="fragment box-red" style="font-size:0.68em;margin-top:10px;">
+    <p style="margin:0;color:#555;">Each targeted bank gets its own custom interceptor. The malware detects the package name and creates a specialized handler for that institution. It captures login credentials, OTPs, account numbers, transaction details. The banking app's own security checks report everything is fine because the hooks feed false data back to the security APIs.</p>
+  </div>
+</section>
+
+<!-- ===== SLIDE 6: GOLDDIGGER ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">MALWARE ANALYSIS</div>
+  <h2>GOLDDIGGER</h2>
+  <p style="color:#888;font-size:0.58em;">Chinese-speaking threat group GoldFactory. Started in Vietnam. Now targeting South Africa and Ethiopia.</p>
+  <div class="two-col" style="margin-top:16px;">
+    <div>
+      <div class="box-red" style="font-size:0.68em;">
+        <p style="margin:0 0 8px;color:#111;font-weight:600;">How GoldDigger works</p>
+        <p style="margin:0;color:#555;">GoldDigger abuses Android Accessibility Services to observe every UI interaction across all apps. It reads input fields, presses buttons, captures credentials. It targets 50+ Vietnamese banking and e-wallet apps, and is expanding to Africa.</p>
+        <p style="margin:10px 0 0;color:#555;">All samples are protected by <strong style="color:#111;">Virbox Protector</strong>, a legitimate software protection tool. This makes reverse engineering extremely difficult. Static and dynamic analysis tools fail on it.</p>
+      </div>
+      <div class="fragment box-red" style="font-size:0.68em;">
+        <p style="margin:0 0 8px;color:#111;font-weight:600;">The Africa connection</p>
+        <p style="margin:0;color:#555;">Phishing sites distributing GoldFactory's Gigabud variant have been found disguised as <strong style="color:var(--orange);">South African Airways</strong> and <strong style="color:var(--orange);">Ethiopian Airlines</strong> apps. Same infrastructure, same GoldFactory backend, now adapted for African victims.</p>
+      </div>
+    </div>
+    <div>
+      <div class="img-frame">
+        <img src="https://zimperium.com/hubfs/Imported_Blog_Media/image.jpg" alt="Fake Play Store distributing Gigabud" style="max-height:350px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">Fake Google Play Store page distributing Gigabud/GoldDigger.<br>Victims download what they think is a legitimate app.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 6B: GOLDPICKAXE - FACE STEALING ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">GOLDPICKAXE</div>
+  <h2>STEALING YOUR FACE</h2>
+  <p style="color:#888;font-size:0.58em;">The first malware to steal facial biometric data. Works on both Android and iOS.</p>
+  <div class="two-col" style="margin-top:14px;">
+    <div>
+      <div class="img-frame">
+        <img src="https://www.bleepstatic.com/images/news/u/1220909/2024/Apple/04/face-capture.png" alt="GoldPickaxe face scanning" style="max-height:380px;object-fit:contain;background:#f0f0f0;padding:8px;width:100%;">
+        <div class="caption">GoldPickaxe prompts victims to scan their face<br>for "identity verification."</div>
+      </div>
+    </div>
+    <div>
+      <div class="kill-chain">
+        <div class="kill-step fragment" style="border-left-color:var(--orange);"><span class="sn" style="background:var(--orange);color:#000;">1</span><span>Victim receives a message impersonating their bank or a government agency. "Complete identity verification to continue using your account."</span></div>
+        <div class="kill-step fragment" style="border-left-color:var(--orange);"><span class="sn" style="background:var(--orange);color:#000;">2</span><span>Victim downloads the app and opens it. Professional-looking KYC screen. "Position your face in the circle and slowly turn your head."</span></div>
+        <div class="kill-step fragment"><span class="sn">3</span><span>The app captures the victim's facial biometric data and photographs of their ID document (front and back).</span></div>
+        <div class="kill-step fragment"><span class="sn">4</span><span>Facial data is sent to <strong style="color:var(--red);">AI face-swapping services</strong>. Attackers create deepfakes by replacing their own face with the victim's.</span></div>
+        <div class="kill-step fragment"><span class="sn">5</span><span>The deepfake is used to <strong style="color:var(--red);">bypass bank facial recognition</strong> authentication. Money transferred out of the victim's account.</span></div>
+      </div>
+      <div class="fragment box-red" style="font-size:0.64em;margin-top:8px;">
+        <p style="margin:0;color:var(--red);font-weight:600;">Banks added facial recognition as extra security. GoldPickaxe turned that security measure into an attack vector.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 6C: GOLDPICKAXE CAMPAIGN FLOW ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">GOLDPICKAXE</div>
+  <h2>THE FULL ATTACK CHAIN</h2>
+  <div style="max-width:800px;margin:18px auto;">
+    <div class="img-frame">
+      <img src="https://www.bleepstatic.com/images/news/u/1220909/2024/Apple/04/campaign.png" alt="GoldPickaxe campaign flow" style="max-height:320px;object-fit:contain;background:#f0f0f0;padding:10px;width:100%;">
+      <div class="caption">GoldPickaxe full campaign and attack flow. From social engineering to account takeover.</div>
+    </div>
+  </div>
+  <div class="fragment" style="margin-top:12px;">
+    <div class="img-frame" style="max-width:800px;">
+      <img src="https://www.bleepstatic.com/images/news/u/1220909/2024/Apple/04/poss-strat.png" alt="GoldPickaxe exploitation strategy" style="max-height:200px;object-fit:contain;background:#f0f0f0;padding:10px;width:100%;">
+      <div class="caption">Exploitation strategy: how stolen facial data is weaponized. via BleepingComputer</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 7: INTERPOL OPERATIONS ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE ORGANIZED CRIME BEHIND IT</h2>
+  <p style="color:#888;font-size:0.56em;">This is not script kiddies. This is industrialized cybercrime moving from Asia to Africa.</p>
+  <div class="two-col" style="margin-top:12px;">
+    <div>
+      <div class="box-red" style="font-size:0.64em;">
+        <p style="margin:0 0 6px;color:#111;font-weight:600;">INTERPOL Operation Red Card</p>
+        <ul style="margin:0;color:#555;line-height:1.7;">
+          <li class="fragment"><strong>Nigeria:</strong> 792-person syndicate. Building in Lagos operating like corporate headquarters. 500 SIM cards on one floor. 177 Chinese nationals arrested.</li>
+          <li class="fragment"><strong>Zambia:</strong> 77 arrested, 22 Chinese nationals sentenced to 11 years.</li>
+          <li class="fragment"><strong>Namibia:</strong> 14 arrested, 222 charges including fraud, racketeering, human trafficking.</li>
+          <li class="fragment"><strong>Total 2024-2025:</strong> 306 arrests, 1,842 devices seized across 7 African countries.</li>
+        </ul>
+      </div>
+      <div class="fragment box-red" style="font-size:0.64em;">
+        <p style="margin:0;color:var(--red);font-weight:600;">UNODC estimates $40 billion annual profits from scam centers. 600% surge in AI deepfake content tied to fraud in Southeast Asia. The same infrastructure is now operational in Africa.</p>
+      </div>
+    </div>
+    <div>
+      <div class="img-frame fragment">
+        <img src="https://adf-magazine.com/wp-content/uploads/2026/01/Six-of-the-Chinese-convicted-by-the-court.-courtesy-EFCC-768x499.jpg" alt="Chinese nationals convicted in Nigeria cybercrime" style="max-height:210px;object-fit:cover;width:100%;">
+        <div class="caption">Chinese nationals convicted by Nigerian courts for cybercrime operations</div>
+      </div>
+      <div class="img-frame fragment" style="margin-top:8px;">
+        <img src="https://adf-magazine.com/wp-content/uploads/2025/06/CHINA-CYBERCRIME1-768x576.jpg" alt="Chinese cybercrime networks in Africa" style="max-height:210px;object-fit:cover;width:100%;">
+        <div class="caption">Chinese cybercrime networks spreading across Africa</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ME ===== -->
+<section data-background-color="#ffffff">
+  <h2>ABOUT ME</h2>
+  <div style="margin-top:18px;display:flex;justify-content:center;gap:25px;align-items:center;flex-wrap:wrap;">
+    <div style="flex-shrink:0;text-align:center;">
+      <img src="dali.jpeg" alt="Mohamed Ali Wachani" style="width:180px;height:180px;border-radius:50%;object-fit:cover;border:3px solid var(--cyan);">
+      <div style="margin-top:8px;font-size:0.6em;color:var(--cyan);font-weight:500;">@ir0nbyte</div>
+    </div>
+    <div class="speaker-card" style="max-width:480px;margin:0;">
+      <div class="name">Mohamed Ali Wachani</div>
+      <div class="role">Mobile Security Researcher @Yinkozi</div>
+      <div class="bio">
+        What I am about to show you is what we found when we put real devices under a microscope. And why it matters for every device in your fleet.
+      </div>
+      <div style="margin-top:10px;font-size:0.55em;color:#999;">
+        <span style="color:var(--cyan);">Mohamedali.wachani@yinkozi.com</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 8: WHAT SECURITY SEES ===== -->
+<section data-background-color="#ffffff">
+  <h2>WHAT YOUR SECURITY<br>ACTUALLY SEES</h2>
+  <p style="color:#888;font-size:0.56em;">Every existing standard takes a snapshot at one moment. Then goes blind.</p>
+  <div style="max-width:720px;margin:14px auto;font-size:0.62em;">
+    <div style="margin:10px 0;"><strong style="color:var(--cyan);">Play Integrity API</strong> <span style="color:#666;">(Android)</span>
+      <div class="snapshot-bar"><div class="dot" style="background:var(--green);"></div><div class="gap">BLIND: overlay injection, GodFather virtualization, transaction tampering</div><div class="dot" style="background:#333;"></div></div>
+      <span style="color:#888;font-size:0.82em;">Checks device state at one moment. Between calls: zero observation.</span></div>
+    <div style="margin:10px 0;"><strong style="color:var(--cyan);">EMV 3DS</strong> <span style="color:#666;">(e-commerce)</span>
+      <div class="snapshot-bar"><div class="dot" style="background:var(--green);"></div><div class="gap">BLIND: SIM swap, session hijack, malware activation after auth</div><div class="dot" style="background:#333;"></div></div>
+      <span style="color:#888;font-size:0.82em;">Device fingerprint collected once. Everything after is invisible.</span></div>
+    <div style="margin:10px 0;"><strong style="color:var(--cyan);">EMV Chip / Contactless</strong>
+      <div class="snapshot-bar"><div class="dot" style="background:#333;"></div><div class="timeline"></div><div class="dot" style="background:var(--green);"></div><div class="gap">OUTSIDE SCOPE: device execution entirely</div></div>
+      <span style="color:#888;font-size:0.82em;">Proves the card was present at tap. Says nothing about the device runtime.</span></div>
+    <div style="margin:10px 0;"><strong style="color:var(--cyan);">FIDO2 / App Attest</strong>
+      <div class="snapshot-bar"><div class="dot" style="background:var(--green);"></div><div class="gap">BLIND: execution path between assertion and network request</div><div class="dot" style="background:#333;"></div></div>
+      <span style="color:#888;font-size:0.82em;">Proves a key signed the challenge. Does not observe what preceded it.</span></div>
+  </div>
+  <div class="fragment"><p style="font-size:0.68em;color:var(--red);font-weight:700;text-align:center;">Every one of these is a snapshot. None observe what happens continuously. That gap is where GodFather, GoldDigger, and every overlay attack lives.</p></div>
+</section>
+
+<!-- ===== SLIDE 9: ANDROID BOOT / ZYGOTE ARCHITECTURE ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-cyan">DEEP DIVE</div>
+  <h2>HOW ANDROID STARTS<br>EVERY APP</h2>
+  <p style="color:#888;font-size:0.56em;">Understanding Zygote is key to understanding why everything breaks.</p>
+  <div class="boot-chain" style="margin-top:18px;">
+    <div class="boot-node anim-in d1">Bootloader</div><div class="boot-arrow anim-in d1">&rarr;</div>
+    <div class="boot-node anim-in d2">Kernel</div><div class="boot-arrow anim-in d2">&rarr;</div>
+    <div class="boot-node active anim-in d3">init (PID 1)</div><div class="boot-arrow anim-in d3">&rarr;</div>
+    <div class="boot-node active anim-in d4" style="border-color:var(--orange);color:var(--orange);">ZYGOTE</div><div class="boot-arrow anim-in d4">&rarr;</div>
+    <div class="boot-node anim-in d5">System Server</div>
+  </div>
+  <div class="two-col fragment" style="margin-top:14px;">
+    <div>
+      <div class="box-blue" style="font-size:0.64em;">
+        <p style="margin:0 0 6px;color:#111;font-weight:600;">What is Zygote?</p>
+        <p style="margin:0;color:#555;">Zygote is a special process that starts early during Android boot. It pre-loads ~15,000 framework classes, system resources, native libraries, and GPU drivers into memory. Then it sits and waits.</p>
+        <p style="margin:8px 0 0;color:#555;">When any app needs to launch, Android does not start it from scratch. It tells Zygote to <strong style="color:#111;">fork()</strong> itself. The new process inherits everything Zygote already loaded. This is how Android starts apps quickly.</p>
+      </div>
+    </div>
+    <div>
+      <div class="box-blue" style="font-size:0.64em;">
+        <p style="margin:0 0 6px;color:#111;font-weight:600;">Why this matters</p>
+        <p style="margin:0;color:#555;"><strong style="color:var(--orange);">Every single app on your device is a child of Zygote.</strong> The banking app. The payment SDK. The compliance tool. The RASP solution. All of them were forked from this one parent process.</p>
+        <p style="margin:8px 0 0;color:var(--red);">If you compromise Zygote, every app launched after that point inherits your malicious code. Including the security tools meant to detect you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 10: ZYGOTE FORK DIAGRAM (ANIMATED) ===== -->
+<section data-background-color="#ffffff">
+  <h2>ZYGOTE FORK MODEL</h2>
+  <p style="color:#888;font-size:0.54em;">Every app is born from the same parent. Compromise the parent, compromise everything.</p>
+  <div style="max-width:700px;margin:18px auto;">
+    <!-- Zygote parent -->
+    <div class="anim-in d1" style="text-align:center;margin-bottom:5px;">
+      <div style="background:#f0fdfa;border:2px solid var(--orange);border-radius:8px;padding:12px 20px;display:inline-block;">
+        <strong style="color:var(--orange);font-size:0.75em;">ZYGOTE</strong><br>
+        <span style="color:#888;font-size:0.55em;">15,000 classes + resources + native libs preloaded</span>
+      </div>
+    </div>
+    <!-- Fork lines -->
+    <div class="anim-in d2" style="display:flex;justify-content:center;gap:80px;">
+      <div class="fork-line" style="animation-delay:0.6s;"></div>
+      <div class="fork-line" style="animation-delay:0.8s;"></div>
+      <div class="fork-line" style="animation-delay:1.0s;"></div>
+      <div class="fork-line" style="animation-delay:1.2s;"></div>
+      <div class="fork-line" style="animation-delay:1.4s;"></div>
+    </div>
+    <!-- Child apps -->
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <div class="anim-in d3" style="background:#f8fafb;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;text-align:center;width:110px;">
+        <strong style="color:#111;font-size:0.58em;">Banking App</strong><br><span style="color:#888;font-size:0.48em;">fork() from Zygote</span>
+      </div>
+      <div class="anim-in d4" style="background:#f8fafb;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;text-align:center;width:110px;">
+        <strong style="color:#111;font-size:0.58em;">Payment SDK</strong><br><span style="color:#888;font-size:0.48em;">fork() from Zygote</span>
+      </div>
+      <div class="anim-in d5" style="background:#f8fafb;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;text-align:center;width:110px;">
+        <strong style="color:#111;font-size:0.58em;">Settings</strong><br><span style="color:#888;font-size:0.48em;">fork() from Zygote</span>
+      </div>
+      <div class="anim-in d6" style="background:#f8fafb;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;text-align:center;width:110px;">
+        <strong style="color:#111;font-size:0.58em;">RASP / Security</strong><br><span style="color:#888;font-size:0.48em;">fork() from Zygote</span>
+      </div>
+      <div class="anim-in d7" style="background:#f8fafb;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;text-align:center;width:110px;">
+        <strong style="color:#111;font-size:0.58em;">Compliance SDK</strong><br><span style="color:#888;font-size:0.48em;">fork() from Zygote</span>
+      </div>
+    </div>
+    <!-- Infected version -->
+    <div class="fragment" style="margin-top:20px;">
+      <div style="text-align:center;margin-bottom:5px;">
+        <div style="background:#fef2f2;border:2px solid var(--red);border-radius:8px;padding:12px 20px;display:inline-block;position:relative;overflow:hidden;" class="pulse-glow">
+          <div class="scan-bar"></div>
+          <strong style="color:var(--red);font-size:0.75em;">COMPROMISED ZYGOTE</strong><br>
+          <span style="color:#ff6666;font-size:0.55em;">Attacker's code injected into parent process</span>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:0.6em;color:var(--red);margin-top:8px;">Every app forked after injection inherits the malicious code.<br>Including the security SDK. It reports "all clear" because it cannot see its own compromise.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 11: DEMO SLIDE ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red" style="font-size:0.7em;padding:8px 25px;">LIVE DEMO</div>
+  <h1 style="font-size:2em;margin-top:30px;">EXPLOIT DEMO</h1>
+  <h2 style="color:var(--red);margin-top:10px;">ZYGOTE INJECTION</h2>
+  <div style="margin-top:30px;">
+    <p style="font-size:0.75em;color:#888;">Demonstrating full system-level compromise<br>on an unpatched Android device.</p>
+  </div>
+</section>
+
+<!-- ===== SLIDE 12: EXPLOIT DEMO ENTRY POINT ===== -->
+<section data-background-color="#ffffff">
+  <div class="badge badge-red">EXPLOIT DEMO</div>
+  <h2>THE ENTRY POINT</h2>
+  <p style="color:#888;font-size:0.56em;">How a single Android setting write escalates to full device compromise.</p>
+  <div style="max-width:720px;margin:16px auto;">
+    <div class="kill-chain">
+      <div class="kill-step fragment"><span class="sn">1</span><span>Android has a system setting called <code style="font-size:0.85em;">hidden_api_blacklist_exemptions</code>. It controls which internal APIs are accessible. The <strong>system user (uid=1000)</strong> has write access to it. This is by design.</span></div>
+      <div class="kill-step fragment"><span class="sn">2</span><span>When this setting changes, Android's ActivityManagerService reads the new value and <strong>sends it to Zygote</strong> over the Zygote socket. Zygote needs to know the current exemption list so all newly forked processes inherit the policy.</span></div>
+      <div class="kill-step fragment"><span class="sn">3</span><span>The attacker writes a crafted payload into this setting. The payload embeds <strong>newline characters</strong> that inject additional arguments into the Zygote command stream. Specifically: <code style="font-size:0.85em;">--invoke-with</code>, which tells Zygote to execute an arbitrary binary when forking.</span></div>
+      <div class="kill-step fragment"><span class="sn">4</span><span>The attacker forces the Settings app to restart. When it relaunches, Zygote forks a new process, parses the poisoned arguments, and <strong>executes the attacker's payload as root</strong> (Zygote runs as root before dropping privileges).</span></div>
+      <div class="kill-step fragment"><span class="sn">5</span><span>A reverse shell opens running as <strong>system user</strong>. The attacker can now impersonate any app, read any app's private data, and inject code into any process on the device.</span></div>
+      <div class="kill-step fragment" style="border-left-color:var(--orange);"><span class="sn" style="background:var(--orange);color:#000;">!</span><span><strong style="color:var(--orange);">Any device with a security patch before June 2024 is vulnerable.</strong> That includes most POS terminals, low-end phones, and shared devices deployed across Africa right now.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 13: WHY THIS BREAKS EVERYTHING ===== -->
+<section data-background-color="#ffffff">
+  <h2>WHY THIS BREAKS<br>EVERYTHING</h2>
+  <div style="max-width:720px;margin:20px auto;">
+    <div class="box-red" style="font-size:0.7em;">
+      <p style="margin:0;">Once Zygote is compromised, every security mechanism that runs in userland is blind:</p>
+      <ul style="margin:10px 0 0;color:#555;line-height:1.8;">
+        <li class="fragment"><strong style="color:var(--red);">Play Integrity</strong> runs after Zygote. The verdict says "clean" because the attestation runs inside the compromised process.</li>
+        <li class="fragment"><strong style="color:var(--red);">RASP / Runtime protection</strong> starts with the app. The app was forked from a compromised Zygote. The RASP is already running the attacker's code.</li>
+        <li class="fragment"><strong style="color:var(--red);">SSL Pinning</strong> relies on certificate stores on the device. With system access, replace the public cert with yours. You become trusted.</li>
+        <li class="fragment"><strong style="color:var(--red);">Overlay detection</strong> checks if accessibility services are doing something suspicious. But the detection runs inside the compromised process.</li>
+      </ul>
+    </div>
+    <div class="fragment" style="margin-top:14px;">
+      <p style="font-size:0.72em;color:var(--orange);text-align:center;font-weight:600;">If someone can start before your app, you lose the game.<br>That is the fundamental problem.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 14: THE COST OF NOT KNOWING ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE COST OF NOT KNOWING</h2>
+  <p style="color:#888;font-size:0.56em;">Ambiguity at scale destroys user experience and costs real money.</p>
+  <div class="two-col" style="margin-top:14px;">
+    <div>
+      <div class="box-red" style="font-size:0.64em;">
+        <p style="margin:0 0 4px;color:#111;font-weight:600;">Ghost transactions</p>
+        <p style="margin:0;color:#555;">Customer taps. Payment processes. Network drops. POS retries. Backend sees two requests. Duplicate or new charge? Without device evidence, you cannot tell. 3-8% of cellular transactions in Africa.</p>
+      </div>
+      <div class="box-red" style="font-size:0.64em;">
+        <p style="margin:0 0 4px;color:#111;font-weight:600;">90-day disputes</p>
+        <p style="margin:0;color:#555;">Issuer says payment happened. Acquirer says it did not. Neither can prove what happened on the device. 90-day process. Manual review. Someone absorbs the cost.</p>
+      </div>
+    </div>
+    <div>
+      <div class="box-red" style="font-size:0.64em;">
+        <p style="margin:0 0 4px;color:#111;font-weight:600;">Whitelists that collapse at scale</p>
+        <p style="margin:0;color:#555;">You detect an accessibility service. Malware or screen reader for blind users? On 5 million users, the whitelist grows until it means nothing. Detecting "app X is enabled" is not enough. You need "app X is doing this, right now, to this field."</p>
+      </div>
+      <div class="box-red" style="font-size:0.64em;">
+        <p style="margin:0 0 4px;color:#111;font-weight:600;">Observability is not evidence</p>
+        <p style="margin:0;color:#555;">"I see this, you see that." You cannot prove anything. The difference: with execution evidence, you can explain <strong style="color:#111;">exactly</strong> what happened. Not what you think happened. What actually happened.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 15: DEVICES YOU CANNOT PATCH ===== -->
+<section data-background-color="#ffffff">
+  <h2>THE DEVICES YOU<br>CANNOT PATCH</h2>
+  <div class="two-col" style="margin-top:16px;">
+    <div>
+      <div class="box-red" style="font-size:0.66em;">
+        <p style="margin:0;color:#555;">Most POS terminals in Africa run Android 10 or 11 with security patches from 2021 or 2022. The manufacturers stopped pushing updates because recertification is expensive and slow.</p>
+        <p style="margin:8px 0 0;color:#555;">Most low-end consumer phones will never receive the June 2024 patch. The manufacturers do not support them anymore. There is no update path. These devices handle real money every day.</p>
+        <p style="margin:8px 0 0;color:var(--red);font-weight:600;">You cannot patch your way out of this problem.</p>
+      </div>
+    </div>
+    <div>
+      <div class="box-blue" style="font-size:0.66em;">
+        <p style="margin:0 0 6px;color:#111;font-weight:600;">The question for this room</p>
+        <p style="margin:0;color:#555;">Can you confirm that <strong style="color:#111;">every single device</strong> in your fleet has been patched after June 2024?</p>
+        <p style="margin:8px 0 0;color:#555;">Every POS terminal. Every SoftPOS device. Every merchant phone running your payment SDK.</p>
+        <p style="margin:8px 0 0;color:var(--orange);font-weight:600;">If the answer is no, then every one of those devices is vulnerable to what I just showed you. Your detection will not work. Your compliance checks will pass. And you will not know.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 16: OPEN QUESTION ===== -->
+<section data-background-color="#ffffff">
+  <h2>WHAT WOULD IT TAKE<br>TO ACTUALLY FIX THIS?</h2>
+  <p style="color:#888;font-size:0.56em;">These are requirements the industry has not yet agreed on. Consider them.</p>
+  <div style="max-width:680px;margin:18px auto;">
+    <div class="box-blue fragment" style="font-size:0.68em;"><p style="margin:0;"><strong style="color:var(--cyan);">Continuous, not snapshot.</strong> You cannot check at one moment and assume integrity. You need to observe every execution step, continuously, including the intervals between attestation checkpoints.</p></div>
+    <div class="box-blue fragment" style="font-size:0.68em;"><p style="margin:0;"><strong style="color:var(--cyan);">Deterministic signal, not heuristic.</strong> Risk scores are opinions. You need cryptographic proof that does not change if you come back 6 months later. Evidence, not inference.</p></div>
+    <div class="box-blue fragment" style="font-size:0.68em;"><p style="margin:0;"><strong style="color:var(--cyan);">Offline-capable by design.</strong> Your security cannot depend on a round-trip to a server on another continent. It needs to work on-device, with intermittent or no connectivity.</p></div>
+    <div class="box-blue fragment" style="font-size:0.68em;"><p style="margin:0;"><strong style="color:var(--cyan);">Works on the worst device in your fleet.</strong> Not the flagship. The $30 phone with Android 10 and a 2021 patch. That device handles real money too. If your solution does not cover it, you have no solution.</p></div>
+  </div>
+</section>
+
+<!-- ===== CLOSING ===== -->
+<section data-background-color="#ffffff">
+  <h2>THESE ARE REQUIREMENTS<br>THE INDUSTRY HAS NOT<br>AGREED ON YET</h2>
+  <div style="max-width:650px;margin:25px auto;">
+    <p style="font-size:0.82em;color:#555;text-align:center;">I would like to know if you think I am wrong.</p>
+  </div>
+  <div style="margin-top:30px;">
+    <p style="font-size:0.65em;color:var(--cyan);">Mohamedali.wachani@yinkozi.com</p>
+    <p style="font-size:0.55em;color:#999;">@ir0nbyte</p>
+  </div>
+</section>
+
+<!-- ===== SLIDE 19: Q&A ===== -->
+<section data-background-color="#ffffff">
+  <h1 style="font-size:2.5em;">Q & A</h1>
+  <div style="margin-top:35px;">
+    <p style="font-size:0.7em;color:#888;">Can you confirm all your devices have been patched after June 2024?<br>If not, what you just saw is running on your fleet right now.</p>
+  </div>
+  <div style="margin-top:22px;font-size:0.6em;color:#555;">Mohamedali.wachani@yinkozi.com</div>
+  <div style="margin-top:18px;font-size:0.48em;color:#333;">YINKOZI GROUP &bull; 2026</div>
+</section>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
+<script>
+Reveal.initialize({hash:true,slideNumber:'c/t',transition:'fade',transitionSpeed:'fast',backgroundTransition:'fade',center:true,width:1280,height:720,margin:0.04,controls:true,progress:true,history:true});
+</script>
+</body>
+</html>
