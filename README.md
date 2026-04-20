@@ -23,6 +23,7 @@ Solutions and walkthroughs from various CTF competitions.
 - [CSAW 2022 - Anya](posts/ctf-writeups/csaw-2022-anya.md) -- Unity game reverse engineering
 - [CSAW 2022 - ezMaze](posts/ctf-writeups/csaw-2022-ezmaze.md) -- PyTorch model analysis
 - [Securinets Jingle Bell 2022](posts/ctf-writeups/securinets-jingle-bell-2022.md) -- 6 crackme challenges
+- [The Verifier - YinkoShield CTF](posts/ctf-writeups/the-verifier.md) -- Android reverse engineering with anti-Frida, anti-emulator, anti-repackaging, Merkle integrity, and a Prüfer-tree key derivation
 
 ### Algorithms
 
