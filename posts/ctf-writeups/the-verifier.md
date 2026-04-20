@@ -1,15 +1,5 @@
-![](https://media.tenor.com/aUobVHXn8UAAAAAC/android-security.gif)
-
-Alright, this one is a little different. It's an Android CTF I actually
-built myself, so this writeup is me breaking it back open the way a
-player would. The whole app is sitting inside the YinkoShield
-protection framework, so instead of the usual "find the XOR key in
-the binary" kind of chall, we've got a verifier that reacts to the
-environment it's running in: emulator, root, Frida, debugger,
-repackaging, all of it. Each of those things twists the key
-derivation a little, so if you don't run the app on a clean unrooted
-real device, the flag just never comes out. Grab the APK and follow
-along.
+Hey there, it's been like 2 years since I wrote a CTF writeup. This writeup is about an Android CTF challenge I actually
+built myself for an event that accured in tunisia called cybersphere. The challenge is sponsored by yinkoshield an evidence mobile security SDK which a completetly new category from Rasp, Promon, Guarddex, etc.. and the usual mobile SDKs and what you are going to see in this writeup is just a crackme style. Grab something to drink, and enjoy reading.
 
 > Quick note before we start: if you're new to Android reverse
 > engineering and a lot of what's coming up (Dalvik, JNI, ART,
@@ -21,8 +11,8 @@ along.
 
 # I - First Look
 
-First things first, let's just install the thing with **adb** and
-run it.
+First things first, let's just install the the apk with **adb** and
+run it. You can download by clicking here [here](https://github.com/IR0NBYTE/Reverse-Engineering-Practice/blob/main/the%20verifier.apk)
 
 **Result :**
 ```Console
@@ -33,7 +23,7 @@ ironbyte@MacBook-Pro-2:~$ adb shell am start -n com.ir0nbyte.yinkoshield/.MainAc
 Starting: Intent { cmp=com.ir0nbyte.yinkoshield/.MainActivity }
 ```
 
-App pops up. One input field, one Verify button. I typed some random
+App pops up. One input field, one Verify button. we can type some random
 20-char hex, tapped Verify, and got 67 bytes of ASCII garbage. No
 error, no popup, just garbage. Same input in, same garbage out, so
 the thing is deterministic. That's already a clue: the verifier is a
@@ -42,7 +32,7 @@ device.
 
 ![](the-verifier-assets/01-verifier-clean.png)
 
-Cool. Now let's be annoying and try it on the Android Studio
+That's cool. Now let's try it on the Android Studio
 emulator.
 
 **Result :**
@@ -50,20 +40,20 @@ emulator.
 ![](the-verifier-assets/03-blocker-emulator.png)
 
 Well that's different. "Device not supported". So the app actually
-has a probe at startup, and if the probe decides something is off,
+has a problem at startup, and if the probe decides something is off,
 the real verifier UI never even shows up. I can also see a little
 `signal ...` line with some hex. That's going to come in handy
 later, because each defense writes into a different slice of that
 buffer and the hex leaks which check fired.
 
-Maybe it's time to dig in properly.
+I guess Maybe it's time to dig in properly.
 
 # II - Static Analysis, Java Side
 
 Let's fire up **jadx** and decompile the hell out of it.
 
 ```Shell
-jadx -d /tmp/dec YinkoShield-CTF-v1.0.apk --show-bad-code
+jadx -d /tmp/dec 'The verifier.apk' --show-bad-code
 ```
 
 Most of the code is shrunk and obfuscated by R8. A bunch of
@@ -133,8 +123,7 @@ public final class ChallengeBridge {
 Alright, so what's going on here. We have two native methods with
 pretty useless names, `a` and `b`, and a Kotlin helper `c` that
 grabs the APK's signing certificate and returns its SHA-256. That's
-already interesting. The author is clearly going to compare that
-hash against something baked in.
+already interesting.
 
 A few things to note about what R8 did to this class:
 
@@ -206,10 +195,10 @@ public final class MainActivity extends m {
 }
 ```
 
-That's cleaner than I expected. Let me walk through the logic:
+Let me walk through the logic:
 
 1. It calls `ChallengeBridge.a(ChallengeBridge.c(this))`. That means
-   "give me the 32-byte taint by running the native probe, and
+   "give me the 32-byte taint by running the native problem, and
    pass in the APK signer's SHA-256 while you're at it".
 2. It loops through those 32 bytes. If **any** byte is non-zero, it
    shows the blocker layout with the hex "signal" and returns.
@@ -217,8 +206,7 @@ That's cleaner than I expected. Let me walk through the logic:
    taps Verify, it calls `ChallengeBridge.b(input, sourceDir,
    assets, signerSha)`, which does the actual decryption.
 
-Now there's that `f1798v` constant sitting at the top of the class.
-Looks kind of suspicious.
+Now there's that `f1798v` constant sitting at the top of the class. Sometheing already to take a look at.
 
 ```Python
 >>> bytes([96, 51, 76, 62, -88 & 0xff, -74 & 0xff, 91, -24 & 0xff,
@@ -237,19 +225,14 @@ never stored as a string in the DEX, just its hash. That's how the
 app knows to highlight a correct flag in green without the literal
 string showing up in a `strings classes.dex` dump.
 
-Before moving to native, one more thing R8 did here: every
-`android.util.Log.*` call got removed via
-`-assumenosideeffects class android.util.Log { ... }` in
-proguard-rules. So don't bother running `logcat`, there's nothing
-there.
 
 # III - Static Analysis, Native Side
 
-The Java side is a thin wrapper, so the real meat lives in
+The Java side is a thin wrapper, so the real stuff lives in
 `lib/arm64-v8a/libyks.so`. Time to pick a disassembler. I'm a bit
 of a fan of **IDA** normally, I just find its UI cleaner for
-navigating large functions. But for this challenge I thought let's
-do it with **radare2** for a change. Everything below is `r2`.
+navigating large functions and debuggign and writing IDA scripts using it's API. But for this challenge I thought let's
+do it with **radare2** to practice a bit the commands and since i'm just visualizing.
 
 Before we even open it in radare2, a quick **nm** run to see what
 the shared library exports.
@@ -280,9 +263,8 @@ free malloc memcpy memmove memset opendir pthread_* read
 readdir realloc socket stat syscall
 ```
 
-Let's read this table out loud. `socket` and `connect` means the
-app is talking to TCP ports (loopback, probably, since it's
-Android). `__open_2`, `__read_chk`, `read` means it reads files,
+Let's read this table a bit. So that `socket` and `connect` means the
+app is talking to TCP ports (loopback probably). `__open_2`, `__read_chk`, `read` means it reads files,
 most likely files under `/proc/`. `opendir`, `readdir`, `closedir`
 means it walks a directory, probably `/proc/self/task` for thread
 names. `stat` means it's checking if paths exist.
@@ -298,7 +280,7 @@ see what we're up against.
 
 **Result :**
 ```Console
-ironbyte@MacBook-Pro-2:~$ r2 -e scr.color=0 -A lib/arm64-v8a/libyks.so
+ironbyte@MacBook-Pro-2:~$ r2 -A lib/arm64-v8a/libyks.so
 [0x000023cc]> afl | sort -k3 -n -r | head -5
 0x00002bec 6852 fcn.00002bec
 0x00009b50 1124 fcn.00009b50
@@ -331,15 +313,13 @@ fcn.00008000 0x8034 [CALL] bl sym.imp.dl_iterate_phdr
 
 So `fcn.00002bec` calls `socket` 4 times, `stat` 22 times, and
 `__system_property_get`. That has to be the big detection routine,
-with every check inlined by the compiler. And `fcn.00008000` is the
-only place that calls `dl_iterate_phdr`, so that's the Merkle
-routine.
+with every check inlined by the compiler.
 
 Let's go through each defense one by one.
 
 # IV - Anti-Emulator
 
-Before reversing the check itself, let's talk about how Android
+Before reversing the check itself, let me take you in a journey on how Android
 emulators actually work. The normal Android Emulator (Android
 Studio's AVD, `sdk_gphone*`) is a QEMU virtual machine running a
 special Android kernel called **goldfish** (old, 32-bit) or
@@ -356,7 +336,7 @@ nodes under `/dev/` that just don't exist on real hardware:
 | `/system/lib/libc_malloc_debug_qemu.so` | Guest libc debug shim |
 
 If any of these exists on disk, we're inside QEMU. Real devices
-don't have them.
+don't have them. So that's how you usually flag if the app is running inside of an emulator.
 
 The other way to spot an emulator is by reading system properties:
 
@@ -405,7 +385,7 @@ The property loop looks like this, around `0x4114`:
 │   0x0000410c      1f 00 00 71    cmp w0, 0
 ```
 
-The 10 probes boil down to:
+The 10 issues boil down to:
 
 ```
 ro.kernel.qemu              == "1"
@@ -426,7 +406,7 @@ buffer feeds directly into the HKDF salt used to derive the
 decryption key, later. So even if I NOP out the check, the salt the
 app expects to use was built on the assumption that the taint is
 all-zero. If my taint isn't all-zero, the key is wrong, and
-ChaCha20 decrypts to garbage. There is no "bypass the check"
+ChaCha20 decrypts to garbage later. There is no "bypass the check"
 because there is no check to bypass. We'll see this pattern over
 and over.
 
@@ -443,10 +423,9 @@ before forking targeted apps, so those apps can't even stat the
 Magisk directory (Magisk source: <https://github.com/topjohnwu/Magisk>).
 
 > If you want the long version with actual demos of how Magisk's
-> DenyList and Zygisk work, I did a full video on it on my channel:
-> [Magisk, DenyList and Zygisk explained](https://www.youtube.com/watch?v=63vbXUlREjM&t).
+> I did a full video on it on my channel:
+> [Magisk explained](https://www.youtube.com/watch?v=63vbXUlREjM&t).
 > Recommended before going further if you've never played with
-> Magisk hiding an app from itself.
 
 So what does the app check? Just a wall of `stat()` calls on
 canonical root paths:
@@ -478,33 +457,10 @@ SuperSU installs and careless rooting. And even when root is
 hidden, running Frida on the rooted device trips other checks
 anyway.
 
-# VI - Anti-Debugger
-
-ptrace quick refresher. Linux exposes debugging via the `ptrace(2)`
-syscall. When `gdb`/`lldb`/Android Studio's JDWP attach to a
-process, they call `ptrace(PTRACE_ATTACH, tid, ...)`. From that
-point on, the tracee's `TracerPid` field in `/proc/self/status` is
-set to the tracer's PID, and the tracer gets `SIGCHLD` on every
-signal the tracee sees.
-
-So the simplest debugger check is just reading `/proc/self/status`
-and parsing the `TracerPid:` line. Zero = nobody tracing,
-non-zero = debugger attached.
-
-The app does exactly that. `__open_2` on `/proc/self/status`,
-`__read_chk` into a buffer, find the literal `TracerPid:`, parse
-the integer, map non-zero to 1, XOR into `taint[0..3]`. That's it.
-
-There's also an older `ptrace(PTRACE_TRACEME, ...)` self-trace
-check that I removed from the shipped build because Samsung Knox's
-SELinux policy denies that syscall even without a real tracer
-attached, producing reliable false positives on Samsung. The code
-is still in the source tree, just not called from
-`accumulate_taint`.
 
 # VII - Anti-Frida
 
-This is where I spent most of my reversing time. **Frida** is always
+This is where you will be spending most of your reversing time. **Frida** is always
 the first tool any Android CTF player reaches for, so the defenses
 against it are layered.
 
@@ -512,14 +468,14 @@ First, how does Frida actually work? Two components:
 
 * **frida-server** is a native binary that runs as root on the
   device and listens on TCP `127.0.0.1:27042` (default). It waits
-  for commands from the host's `frida` CLI over that socket. Source:
-  <https://github.com/frida/frida-core>.
+  for commands from the host's `frida` CLI over that socket. Check this source to understand more:
+  <https://github.com/frida/frida-core>. The port can be changed, you can even build your own fork of frida.
 * **frida-gum** is the instrumentation engine that gets injected
   into the target. When you run `frida -f <pkg>`, the server spawns
   the app, then uses a tiny ptrace-based injector to `dlopen` a
   shared library called `frida-agent-<abi>.so` into the app's
   process. That .so contains frida-gum, a V8 or QuickJS
-  interpreter, and your JS script. Source:
+  interpreter, and your JS script. Check this source to understand more:
   <https://github.com/frida/frida-gum>.
 
 Here's the rough architecture so you can picture what's happening:
@@ -577,7 +533,7 @@ So the app has three checks, one for each footprint.
 │   0x000034cc      a11b0094       bl sym.imp.close
 ```
 
-If you squint through that ARM assembly, what it's doing is:
+what it's doing is basically:
 
 1. Build a `struct sockaddr_in` with `{AF_INET, htons(27042),
    127.0.0.1}`.
@@ -595,7 +551,7 @@ little-endian halfword that, when stored into the `sin_port` field
 of `sockaddr_in`, represents network-byte-order 27042. Because
 `sin_port` is big-endian, little-endian `0xa269` reads back as
 `0x69a2 = 27042`. That's why the constant in the code doesn't
-match the decimal 27042 you'd expect.
+match the decimal 27042 you'd expect something most people don't understand when they see it first time, I've seen this multiple times so i'm a bit used to it.
 
 ### /proc/self/maps scan
 
@@ -616,7 +572,7 @@ hit feeds `taint[4..9]`.
 Alright, we have three checks, all feeding a 32-byte taint buffer
 returned by `ChallengeBridge.a()`. The Java side just loops through
 those bytes and calls the blocker layout if any byte is non-zero.
-Obviously, my first thought is: hook `a()` from Frida, make it
+Obviously, We can hook `a()` from Frida, make it
 return 32 zeros, UI opens, we're home.
 
 Let me write that script.
@@ -665,8 +621,8 @@ ironbyte@MacBook-Pro-2:~$ frida -U -l bypass_ui_probe.js -f com.ir0nbyte.yinkosh
 [run] output = 55dd36a38fcc83bbc2d9e5... (garbage)
 ```
 
-UI opened, I typed a candidate input, tapped Verify, and I got
-garbage.
+UI opened, I typed a random input, tapped Verify, and I got
+garbage xD.
 
 ![](the-verifier-assets/04-blocker-frida.png)
 
@@ -698,7 +654,6 @@ Java.perform(() => {
     const libyks = Process.getModuleByName("libyks.so");
     console.log("[+] libyks.so base =", libyks.base, "size =", libyks.size);
 
-    // First 16 bytes of accumulate_taint's prologue, pulled from r2.
     const NEEDLE = "ff c3 03 d1 fd 7b 0b a9 fd 03 02 91 f6 57 0c a9";
     const hits = Memory.scanSync(libyks.base, libyks.size, NEEDLE);
     if (hits.length !== 1) {
@@ -709,8 +664,6 @@ Java.perform(() => {
     const fn = hits[0].address;
     console.log("[+] accumulate_taint =", fn);
 
-    // Signature: void accumulate_taint(uint8_t* taint, const uint8_t* signer_sha)
-    // aarch64: x0 = taint (out), x1 = signer_sha (in)
     Interceptor.replace(fn, new NativeCallback(function (taintPtr, _signerSha) {
         console.log("[hook] accumulate_taint(", taintPtr, ") -> zeroing");
         Memory.writeByteArray(taintPtr, new Uint8Array(32));
@@ -738,7 +691,7 @@ ChaCha20 gives me garbage. Same outcome, different reason.
 Two hooks in, two dead ends. Each attempt tripped a defense I
 hadn't even looked at yet. Fine. Let me park the dynamic side for
 now and go understand the rest of the pipeline, there has to be
-something in the algorithm itself.
+something in the algorithm itself. Just a little note, there is a frida script, that can actually work and I tested it. I will leave it as a homework to you so you can figure it out how to do it.
 
 # VIII - Anti-Repackaging
 
@@ -748,7 +701,7 @@ The package manager accepts it because it's a valid APK, just
 signed by a different developer. To detect this, the app pins the
 original signer's certificate hash.
 
-At build time, the author's `tools/pin_signature.py` reads the
+At build time, I have built a `pin_signature.py` that reads the
 signing keystore, extracts the cert, SHA-256s the DER, and emits a
 C header:
 
@@ -763,7 +716,7 @@ inline constexpr uint8_t EXPECTED_SIGNER_SHA256[32] = {
 
 At runtime, the Kotlin helper `c(Context)` grabs the installed
 APK's signing cert via `PackageManager.GET_SIGNING_CERTIFICATES`,
-SHA-256s it, and passes it into `b()`. The native side does a
+SHA-256s it, and passes it into `b()`. And the native side does a
 byte-wise compare:
 
 ```cpp
@@ -779,10 +732,9 @@ static void check_signature(u8 taint[TAINT_LEN], const u8* sha) {
 
 Any mismatch feeds `taint[24..27]`.
 
-Finding `EXPECTED_SIGNER_SHA256` in the stripped `.so` took a
-minute. Clang's auto-vectorizer stored the 32 bytes as 32
+Finding `EXPECTED_SIGNER_SHA256` in the stripped `.so` is quick. Later, clang's auto-vectorizer stored the 32 bytes as 32
 interleaved 16-bit shorts, with the high byte of each short zero.
-So `.rodata` dumped through **radare2** looks like:
+So `.rodata` dumped through **radare2** looks like this:
 
 **Result :**
 ```Console
@@ -811,11 +763,11 @@ ironbyte@MacBook-Pro-2:/tmp/u$ zip -0 -qr ../repack.apk lib/ resources.arsc
 
 # align + sign with my own key
 ironbyte@MacBook-Pro-2:/tmp/u$ zipalign -p -f 4 /tmp/repack.apk /tmp/repack-aligned.apk
-ironbyte@MacBook-Pro-2:/tmp/u$ keytool -genkey -v -keystore /tmp/attacker.keystore -alias attacker \
-        -keyalg RSA -validity 365 -storepass attacker -keypass attacker \
-        -dname "CN=attacker,O=bad,C=ZA"
-ironbyte@MacBook-Pro-2:/tmp/u$ apksigner sign --ks /tmp/attacker.keystore --ks-pass pass:attacker \
-          --key-pass pass:attacker --ks-key-alias attacker \
+ironbyte@MacBook-Pro-2:/tmp/u$ keytool -genkey -v -keystore /tmp/ironbyte.keystore -alias ironbyte \
+        -keyalg RSA -validity 365 -storepass ironbyte -keypass ironbyte \
+        -dname "CN=ironbyte,O=bad,C=ZA"
+ironbyte@MacBook-Pro-2:/tmp/u$ apksigner sign --ks /tmp/ironbyte.keystore --ks-pass pass:ironbyte \
+          --key-pass pass:ironbyte --ks-key-alias ironbyte \
           /tmp/repack-aligned.apk
 
 ironbyte@MacBook-Pro-2:/tmp/u$ adb install -r /tmp/repack-aligned.apk
@@ -825,7 +777,7 @@ ironbyte@MacBook-Pro-2:/tmp/u$ adb shell am start -n com.ir0nbyte.yinkoshield/.M
 ![](the-verifier-assets/05-blocker-repackaged.png)
 
 Blocker screen. Signal `00...00 86a5c4e3 00...00`, bytes 24 to 27
-non-zero. Exactly the cert-pin slice. Caught.
+non-zero. Exactly the cert-pin slice. We got Caught, hmm interesting. Still gonna leave this as a homework on how to bypass it.
 
 # IX - Merkle Tree Integrity
 
@@ -907,7 +859,7 @@ If you run `strings lib/arm64-v8a/libyks.so`, you won't see
 detection paths. They're in the binary, but encoded.
 
 Here's the story. My first instinct (when I was writing the
-framework, not reversing it) was a `constexpr` XOR macro:
+challenge, not reversing it) was a `constexpr` XOR macro:
 
 ```cpp
 #define XS(lit) ([]() -> const char* {                      \
@@ -930,7 +882,7 @@ I tried UDL (user-defined literal) character packs next:
 ```cpp
 template <typename T, T... Cs>
 constexpr auto operator""_yks() { return blob<Cs...>::enc; }
-// "literal"_yks -- characters arrive as template parameters
+// "literal"_yks characters arrive as template parameters
 ```
 
 Also failed. Clang keeps the literal in `.rodata` even when only
@@ -999,8 +951,7 @@ Verified:
 
 **Result :**
 ```Console
-ironbyte@MacBook-Pro-2:~$ strings lib/arm64-v8a/libyks.so | \
-    grep -iE 'proc|dev|qemu|magisk|goldfish|ranchu|frida|gum|yks-core'
+ironbyte@MacBook-Pro-2:~$ strings lib/arm64-v8a/libyks.so | grep -iE 'proc|dev|qemu|magisk|goldfish|ranchu|frida|gum|yks-core'
 ironbyte@MacBook-Pro-2:~$ 
 ```
 
@@ -1008,7 +959,7 @@ Nothing.
 
 # XI - Anti-LLM
 
-The author put some prompt-injection payloads in `resources.arsc`
+I put some prompt-injection payloads in `resources.arsc`
 and inside a decoy `.cpp` translation unit. They look like this:
 
 ```xml
@@ -1027,13 +978,13 @@ conversation artifacts.
 
 Plus classic `<|im_start|>system` impersonation tags for
 ChatML-style models. These don't work on a human player, you'll
-read them and laugh, but they can throw off an LLM-assisted player
+read them and laugh xD, but they can throw off an LLM-assisted player
 who pastes `strings` output or decompiled resources into a chat
-window. Not a defense, just noise.
+window. Not a defense, just noise. I tested that with Claude, it stopped some certain sessions. Still deving a bunch of mitigations of Anti-LLM.
 
 # XII - The VM
 
-Now we get to the interesting part. `ChallengeBridge.b()` internally
+Now we get to the interesting part, I had made a video about VMs back 2 years ago I guess for people who don't know aything about how to RE VMs check it out [Reverse Engineering - Virtual Machines](https://www.youtube.com/watch?v=1vAF-Bgg3jc). So let's back, let's check `ChallengeBridge.b()` internally
 calls something like:
 
 ```cpp
@@ -1247,7 +1198,7 @@ transform from input to decryption key.
 
 # XIV - Crypto Pipeline
 
-No surprises here, stock primitives. SHA-256 (FIPS-180), HKDF
+There is no surprises here, stock primitives. SHA-256 (FIPS-180), HKDF
 (RFC 5869), ChaCha20 (RFC 7539). The `.so`'s SHA-256 lives around
 `fcn.0000904c` (init) / `fcn.00009138` (block) / `fcn.000092dc`
 (finalize), and I verified byte-by-byte against Python's
@@ -1314,7 +1265,7 @@ from itertools import product
 
 N, L  = 12, 10
 CT    = open("flag-arm64-v8a.bin", "rb").read()
-MERKLE = bytes.fromhex("...")   # hash of PT_LOAD/PF_X of the shipped .so
+MERKLE = bytes.fromhex("...")   # hash of PT_LOAD/PF_X of the shipped .so you should extract it
 TAINT = bytes(32)
 PREFIX = b"Securinets{"
 
@@ -1397,13 +1348,13 @@ for seq in product(range(N), repeat=L):
 
 Can we avoid the brute force? Not really. SHA-256 is one-way, so we
 can't invert the signatures to find the input that produces a
-desired `acc`. HKDF is one-way too. Every step after `expand_seq`
+desired `acc`. If you find another approach better than this ping me. So HKDF is one-way too. Every step after `expand_seq`
 destroys bits. Only the 10-byte input space is small enough to
 enumerate.
 
 # XVI - The Flag
 
-After running the solver on a laptop:
+After running the solver :
 
 **Result :**
 ```Console
@@ -1421,9 +1372,9 @@ And there it is.
 
 Same ending as always, don't hesitate to reach out if you have
 questions or want to compare solves. You can find me on LinkedIn at
-[Med Ali Ouachani](https://www.linkedin.com/in/med-ali-ouachani/),
+[Mohamed Ali Wachani](https://www.linkedin.com/in/med-ali-ouachani/),
 on YouTube at [@ir0nbyte](https://www.youtube.com/@ir0nbyte), or on
 Twitter [@ir0nbyte](https://twitter.com/Ir0nbyte). And if you
 enjoyed the challenge, make sure to check out the sponsor that made
 it possible: [YinkoShield](https://www.linkedin.com/showcase/yinkoshield).
-See you in the next writeup!
+See you in the next writeup and keep hacking !!
