@@ -24,9 +24,7 @@ Starting: Intent { cmp=com.ir0nbyte.yinkoshield/.MainActivity }
 App pops up. One input field, one Verify button. we can type some random
 20-char hex, tapped Verify, and got 67 bytes of ASCII garbage. No
 error, no popup, just garbage. Same input in, same garbage out, so
-the thing is deterministic. That's already a clue: the verifier is a
-pure function of my input plus whatever state it reads off the
-device.
+the thing is deterministic. I installed the app on a real device here so I had no issues seeing the UI.
 
 ![](the-verifier-assets/01-verifier-clean.png)
 
