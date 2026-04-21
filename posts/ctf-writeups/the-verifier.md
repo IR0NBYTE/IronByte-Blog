@@ -1,8 +1,7 @@
 Hey there, it's been like 2 years since I wrote a CTF writeup. This writeup is about an Android CTF challenge I actually built myself for an event that took place in Tunisia called CyberSphere. The challenge is sponsored by [YinkoShield](https://www.linkedin.com/showcase/yinkoshield/posts/?feedView=all), an evidence-based mobile security SDK which is a completely new category compared to RASP, Promon, Guardsquare, etc., and the usual mobile SDKs. What you're going to see in this writeup is just a crackme-style challenge. Grab something to drink, and enjoy reading.
 
-> Slides from the talk I gave at CyberSphere are here:
-> [cybersphere.pptx](the-verifier-assets/cybersphere.pptx) (download)
-> or [view in browser](https://htmlpreview.github.io/?https://github.com/IR0NBYTE/IronByte-Blog/blob/main/posts/ctf-writeups/the-verifier-assets/cybersphere.html)
+> Slides from the talk I gave at CyberSphere:
+> [view in browser](https://htmlpreview.github.io/?https://github.com/IR0NBYTE/IronByte-Blog/blob/main/posts/ctf-writeups/the-verifier-assets/cybersphere.html)
 > (reveal.js deck).
 
 > Quick note before we start: if you're new to Android reverse
